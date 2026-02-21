@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legora & Your Practice - Quick Discovery</title>
+<style>
+  :root {
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --border: #dee2e6;
+    --text: #212529;
+    --text-muted: #6c757d;
+    --accent: #2c5282;
+    --accent-light: #ebf4ff;
+    --accent-hover: #1a365d;
+    --green: #276749;
+    --green-light: #f0fff4;
+    --orange: #c05621;
+    --orange-light: #fffaf0;
+    --red: #9b2c2c;
+    --red-light: #fff5f5;
+    --dan: #276749;
+    --dan-bg: #f0fff4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--accent);
+    color: white;
+    padding: 10px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .toolbar-title {
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+  }
+
+  .toolbar-right {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .save-indicator {
+    font-size: 12px;
+    opacity: 0.8;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+  }
+
+  .send-btn {
+    background: #48bb78;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .send-btn:hover { background: #38a169; transform: translateY(-1px); }
+  .send-btn:active { transform: translateY(0); }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .header {
+    background: white;
+    border-radius: 12px;
+    padding: 32px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+
+  .header h1 {
+    font-size: 22px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .header .subtitle {
+    color: var(--text-muted);
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .header .intro {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .header .intro p { margin-bottom: 10px; }
+
+  .progress-bar {
+    background: white;
+    border-radius: 10px;
+    padding: 16px 24px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+
+  .progress-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .progress-track {
+    height: 8px;
+    background: #edf2f7;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  .section {
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+
+  .section:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+  .section-header {
+    padding: 16px 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    user-select: none;
+  }
+
+  .section-header:hover { background: #fafafa; }
+
+  .section-number {
+    background: var(--accent);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-weight: 600;
+    font-size: 16px;
+    flex: 1;
+  }
+
+  .section-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    background: var(--dan-bg);
+    color: var(--dan);
+  }
+
+  .chevron {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.2s;
+    color: var(--text-muted);
+  }
+
+  .section.open .chevron { transform: rotate(180deg); }
+
+  .section-body {
+    display: none;
+    padding: 0 24px 24px;
+  }
+
+  .section.open .section-body { display: block; }
+
+  .content-block {
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .content-block h3 {
+    font-size: 15px;
+    margin: 16px 0 8px;
+    color: var(--accent);
+  }
+
+  .content-block h4 {
+    font-size: 14px;
+    margin: 12px 0 6px;
+    color: var(--text);
+  }
+
+  .content-block ul, .content-block ol {
+    padding-left: 20px;
+    margin: 8px 0;
+  }
+
+  .content-block li { margin: 4px 0; }
+  .content-block p { margin: 8px 0; }
+  .content-block strong { color: var(--accent-hover); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+
+  th {
+    background: var(--accent-light);
+    color: var(--accent);
+    text-align: left;
+    padding: 8px 12px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: top;
+  }
+
+  tr:hover td { background: #fafafa; }
+
+  .highlight-box {
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+
+  .highlight-box.insight { background: var(--accent-light); border-left: 3px solid var(--accent); }
+  .highlight-box.opportunity { background: var(--green-light); border-left: 3px solid var(--green); }
+  .highlight-box.warning { background: var(--orange-light); border-left: 3px solid var(--orange); }
+  .highlight-box.critical { background: var(--red-light); border-left: 3px solid var(--red); }
+
+  .highlight-box .hl-label {
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .highlight-box.insight .hl-label { color: var(--accent); }
+  .highlight-box.opportunity .hl-label { color: var(--green); }
+  .highlight-box.warning .hl-label { color: var(--orange); }
+  .highlight-box.critical .hl-label { color: var(--red); }
+
+  .input-area {
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  .input-group {
+    margin-bottom: 16px;
+  }
+
+  .input-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--dan);
+  }
+
+  .input-label .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--dan);
+  }
+
+  textarea {
+    width: 100%;
+    border: 1px solid #c6f6d5;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 60px;
+    transition: border-color 0.15s;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: var(--dan);
+    box-shadow: 0 0 0 3px rgba(39,103,73,0.1);
+  }
+
+  textarea::placeholder {
+    color: #a0aec0;
+  }
+
+  .timeline-block {
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+
+  .timeline-block .tl-item {
+    margin-bottom: 8px;
+    position: relative;
+  }
+
+  .timeline-block .tl-day {
+    font-weight: 700;
+    color: var(--accent);
+    display: inline-block;
+    min-width: 60px;
+  }
+
+  .question-list {
+    counter-reset: q;
+  }
+
+  .question-list .q-item {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: #fafafa;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+  }
+
+  .question-list .q-text {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    counter-increment: q;
+  }
+
+  .question-list .q-text::before {
+    content: counter(q) ". ";
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .question-list textarea {
+    min-height: 40px;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    margin: 2px;
+  }
+
+  .tag-yes { background: #c6f6d5; color: #276749; }
+  .tag-no { background: #fed7d7; color: #9b2c2c; }
+
+  .send-section {
+    background: var(--green-light);
+    border: 2px solid var(--green);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 32px 0 16px;
+    text-align: center;
+  }
+
+  .send-section h2 {
+    color: var(--green);
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .send-section p {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .send-section .send-btn-large {
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .send-section .send-btn-large:hover { background: #22543d; transform: translateY(-1px); }
+
+  .send-fallback {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .send-fallback a {
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #2d3748;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: transform 0.3s ease;
+    z-index: 300;
+  }
+
+  .toast.visible { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 640px) {
+    .container { padding: 12px; }
+    .header { padding: 20px; }
+    .section-body { padding: 0 16px 16px; }
+    .toolbar { padding: 8px 12px; }
+    .toolbar-title { font-size: 12px; }
+    .send-section { padding: 16px; }
+  }
+
+  @media print {
+    .toolbar { display: none; }
+    .send-section { display: none; }
+    .section { break-inside: avoid; }
+    .section-body { display: block !important; }
+    textarea { border: 1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <span class="toolbar-title">Legora & Your Practice - Discovery Document</span>
+  <div class="toolbar-right">
+    <span class="save-indicator" id="saveStatus">All changes saved automatically</span>
+    <button class="send-btn" onclick="sendToJames()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+      Send to James
+    </button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="header">
+    <h1>Legora & Your Practice</h1>
+    <p class="subtitle">A quick discovery document from James Brown</p>
+    <div class="intro">
+      <p>Dan -- I've done some background research on Legora and the broader landscape of AI tools for construction lawyers. This document has a summary of what I've found, along with some questions for you.</p>
+      <p><strong>No rush on this.</strong> Fill in whatever you can, whenever you get a chance. Everything saves automatically in your browser, so you can close the page and come back to it any time. When you're happy with what you've put in, hit the green <strong>"Send to James"</strong> button and it'll come straight to me.</p>
+      <p>The more detail you can give me the better, but even short answers are useful. Some sections are just background info for context -- you only need to fill in the green input boxes.</p>
+    </div>
+  </div>
+
+  <div class="progress-bar">
+    <div class="progress-label">
+      <span>Your progress</span>
+      <span id="progressText">0 of 22 fields completed</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: What is Legora -->
+  <div class="section open" data-section="1">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-number">1</span>
+      <span class="section-title">What is Legora? (Background)</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="content-block">
+        <p>Legora (formerly <strong>Leya</strong>, rebranded Feb 2025) is a Swedish legal AI company -- a collaborative AI workspace for lawyers. Y Combinator's fastest-ever unicorn, now valued at ~$1.8B with 600+ law firms using it.</p>
+
+        <h3>Key Capabilities</h3>
+        <table>
+          <tr><th>Feature</th><th>What It Does</th></tr>
+          <tr><td><strong>Research</strong></td><td>AI-powered legal research combining reasoning with search across documents, databases, and the web</td></tr>
+          <tr><td><strong>Document Review</strong></td><td>Tabular review, comparison, clause extraction, risk flagging across document sets</td></tr>
+          <tr><td><strong>Drafting</strong></td><td>Draft from precedents and templates, redlining, in-document via Word Add-in</td></tr>
+          <tr><td><strong>Workflows</strong></td><td>Multi-step AI automation built in plain English -- chains multiple tasks together</td></tr>
+          <tr><td><strong>Word Add-in</strong></td><td>AI capabilities embedded directly in Microsoft Word</td></tr>
+        </table>
+
+        <div class="highlight-box insight">
+          <div class="hl-label">Why this matters</div>
+          At &pound;150/month, you're getting access to the same platform that Magic Circle firms use. The question is whether you're getting the most out of it, and what else might complement it.
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Your thoughts</div>
+          <textarea data-field="s1_dan" placeholder="Does this match your understanding of what Legora does? Anything you'd add or correct?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: What Legora Does -->
+  <div class="section open" data-section="2">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-number">2</span>
+      <span class="section-title">Your Legora Usage</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="content-block">
+        <p>Legora has quite a few features. I'd like to understand which ones you actually use, and which you haven't explored yet.</p>
+
+        <table>
+          <tr><th>Feature</th><th>Available</th><th>Potential for Construction Work</th></tr>
+          <tr><td>Research</td><td><span class="tag tag-yes">Yes</span></td><td>Case law, statute lookup, construction law points</td></tr>
+          <tr><td>Document Review</td><td><span class="tag tag-yes">Yes</span></td><td>Contract review, variation analysis, risk flagging</td></tr>
+          <tr><td>Drafting</td><td><span class="tag tag-yes">Yes</span></td><td>Submissions, correspondence, contract amendments</td></tr>
+          <tr><td>Workflows</td><td><span class="tag tag-yes">Yes</span></td><td>Multi-step automation -- like having a paralegal for repetitive tasks</td></tr>
+          <tr><td>Word Add-in</td><td><span class="tag tag-yes">Yes</span></td><td>AI help directly inside Word while you're drafting</td></tr>
+          <tr><td>Practice Management</td><td><span class="tag tag-no">No</span></td><td>Time recording, billing, deadlines -- Legora doesn't do this</td></tr>
+        </table>
+      </div>
+
+      <div class="input-area">
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> What do you actually use?</div>
+          <textarea data-field="s2_dan_usage" placeholder="Which features do you use day-to-day? Give me a real example from the last week or two if you can."></textarea>
+        </div>
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> What haven't you tried?</div>
+          <textarea data-field="s2_dan_untried" placeholder="Any features you haven't explored yet? (Workflows is the one most people miss)"></textarea>
+        </div>
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Frustrations?</div>
+          <textarea data-field="s2_dan_frustrations" placeholder="What annoys you about the platform? What would you change? Do you feel you're getting value from the &pound;150/month?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Your Practice -->
+  <div class="section open" data-section="3">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-number">3</span>
+      <span class="section-title">Your Practice Setup</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="content-block">
+        <p>To give you useful advice, I need to understand how your day-to-day actually works. This is probably the most important section.</p>
+      </div>
+
+      <div class="input-area">
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Your chambers arrangement</div>
+          <textarea data-field="s3_dan_chambers" placeholder="What does your chambers provide? (offices, IT, PII, compliance, etc.) What do you handle yourself? What's the fee arrangement?"></textarea>
+        </div>
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Your technology setup</div>
+          <textarea data-field="s3_dan_tech" placeholder="What software do you use? Practice management? Document storage? How do you track time and bill clients? How do you manage deadlines?"></textarea>
+        </div>
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> A typical week</div>
+          <textarea data-field="s3_dan_week" placeholder="What does a typical week look like? Roughly what % is advisory vs disputes? How many active matters do you carry at once?"></textarea>
+        </div>
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Contract types</div>
+          <textarea data-field="s3_dan_contracts" placeholder="Which contract forms do you see most? (JCT, NEC, FIDIC, bespoke?) What's your bread and butter work?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: Construction Law Context -->
+  <div class="section open" data-section="4">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-number">4</span>
+      <span class="section-title">The Adjudication Pressure Cooker</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="content-block">
+        <p>From my research, adjudication seems like the <strong>most intense pressure point</strong> for a solo construction lawyer. The timelines are brutal:</p>
+
+        <div class="timeline-block">
+          <div class="tl-item"><span class="tl-day">Day 0:</span> Notice of Adjudication served</div>
+          <div class="tl-item"><span class="tl-day">Day 7:</span> Referral Notice submitted (with ALL evidence)</div>
+          <div class="tl-item"><span class="tl-day">Day 14:</span> Response typically due (if responding party)</div>
+          <div class="tl-item"><span class="tl-day">Day 28:</span> Decision (extendable to Day 42 with consent)</div>
+        </div>
+
+        <div class="highlight-box warning">
+          <div class="hl-label">The solo challenge</div>
+          When this kicks off, you have to drop everything for 7-14 days. Hundreds of pages of submissions, evidence, contract analysis, legal arguments -- and all other client work stops. This is where smart use of AI could make the biggest difference.
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> How do you handle adjudications?</div>
+          <textarea data-field="s4_dan_adj" placeholder="When was the last one? What was the most painful part? How do you currently organise evidence and build your submissions?"></textarea>
+        </div>
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Deadline tracking</div>
+          <textarea data-field="s4_dan_deadlines" placeholder="How do you track critical deadlines -- payment notice periods, adjudication timelines, limitation dates? Calendar? Spreadsheet? Memory?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: Pain Points -->
+  <div class="section open" data-section="5">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-number">5</span>
+      <span class="section-title">Your Pain Points</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="content-block">
+        <p>The honest stuff. What's actually hard about running your practice solo? No wrong answers here -- the more candid you are, the more useful my suggestions will be.</p>
+      </div>
+
+      <div class="input-area">
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Biggest time sink</div>
+          <textarea data-field="s5_dan_timesink" placeholder="What single task takes the most time in your working day?"></textarea>
+        </div>
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Contract review process</div>
+          <textarea data-field="s5_dan_contractreview" placeholder="How do you currently review JCT/NEC contracts? What's your actual process from receiving the document to delivering advice?"></textarea>
+        </div>
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Precedent documents</div>
+          <textarea data-field="s5_dan_precedents" placeholder="Do you have a system for precedent documents and templates, or do you largely start from scratch each time?"></textarea>
+        </div>
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> What falls through the cracks?</div>
+          <textarea data-field="s5_dan_cracks" placeholder="What's the stuff you know you should be doing better but never quite get round to? (Admin, marketing, filing, compliance, CPD...)"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: Construction-Specific Tools -->
+  <div class="section open" data-section="6">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-number">6</span>
+      <span class="section-title">Other AI Tools Worth Knowing About</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="content-block">
+        <p>Legora is a general legal AI platform. There are also <strong>construction-specific</strong> AI tools that might complement it:</p>
+
+        <table>
+          <tr><th>Tool</th><th>What It Does</th><th>Contract Support</th></tr>
+          <tr><td><strong>ContractFlow AI</strong></td><td>Construction contract review, risk flags, diagrams. Expert-verified.</td><td>FIDIC, NEC3/4, JCT 2016/2024</td></tr>
+          <tr><td><strong>Document Crunch</strong></td><td>Risk management platform. Chat interface to interrogate contracts. Auto-generated playbooks.</td><td>General construction</td></tr>
+          <tr><td><strong>LegalOn</strong></td><td>AI contract review with 50+ pre-built playbooks. Risk severity ranking.</td><td>Construction, subcontracts, design-build</td></tr>
+          <tr><td><strong>Built Intelligence FastDraft</strong></td><td>NEC contract management. AI for compensation events and programme.</td><td>NEC-specific</td></tr>
+        </table>
+
+        <p>Anthropic (the company behind Claude AI) also launched a <strong>Legal Plugin</strong> in February 2026 that offers contract review, NDA triage, and legal reasoning -- available to all paid Claude users.</p>
+      </div>
+
+      <div class="input-area">
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Your thoughts</div>
+          <textarea data-field="s6_dan_tools" placeholder="Have you come across any of these? Are you using any other AI tools besides Legora? Would a construction-specific tool be useful?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7: SRA / Compliance -->
+  <div class="section open" data-section="7">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-number">7</span>
+      <span class="section-title">AI & Compliance (Quick Check)</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="content-block">
+        <p>The SRA hasn't created AI-specific rules yet, but existing professional standards apply. The key points are: you're personally responsible for all AI output, client data should only go into secure tools (Legora is fine), and you should be transparent with clients about AI use.</p>
+        <p>Legora's security stack (ISO 27001, SOC 2, GDPR, AES-256 encryption, tenant isolation) should satisfy SRA requirements. That's one of its advantages over using free AI tools.</p>
+      </div>
+
+      <div class="input-area">
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Your compliance position</div>
+          <textarea data-field="s7_dan_compliance" placeholder="Do you have an AI usage policy? Do your engagement letters mention AI? Does your chambers provide any guidance on this? Any concerns?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8: Looking Forward -->
+  <div class="section open" data-section="8">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-number">8</span>
+      <span class="section-title">Looking Forward</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="content-block">
+        <p>A few bigger-picture questions to help me understand where you're heading.</p>
+      </div>
+
+      <div class="input-area">
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> What does success look like?</div>
+          <textarea data-field="s8_dan_success" placeholder="What does the next 12 months look like for you ideally? More clients? Less stress? Better work-life balance? Higher income? All of the above?"></textarea>
+        </div>
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Growth vs optimisation</div>
+          <textarea data-field="s8_dan_growth" placeholder="Do you want to grow (hire, take on more work) or optimise (same work, less stress, more margin)?"></textarea>
+        </div>
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Your chambers arrangement</div>
+          <textarea data-field="s8_dan_future" placeholder="Is the chambers arrangement permanent, or are you building toward full independence at some point?"></textarea>
+        </div>
+        <div class="input-group">
+          <div class="input-label"><span class="dot"></span> Anything else?</div>
+          <textarea data-field="s8_dan_other" placeholder="Anything else on your mind that I haven't covered? Any specific problems you'd like help with?"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEND SECTION -->
+  <div class="send-section">
+    <h2>All done? (Or done enough for now)</h2>
+    <p>Hit the button below to send your responses to James. Don't worry about filling everything in -- you can always send an updated version later.</p>
+    <button class="send-btn-large" onclick="sendToJames()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22L11 13L2 9L22 2Z"/></svg>
+      Send to James
+    </button>
+    <div class="send-fallback" id="sendFallback" style="display:none;">
+      <p>If that didn't work: <a onclick="downloadJSON()">download your responses as a file</a> and send it to James however is easiest (email, WhatsApp, etc.)</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const STORAGE_KEY = 'legora_dan_v1';
+  const TOTAL_FIELDS = document.querySelectorAll('textarea[data-field]').length;
+
+  // === Toast notification ===
+  function showToast(message, duration = 2500) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('visible');
+    setTimeout(() => toast.classList.remove('visible'), duration);
+  }
+
+  // === Data ===
+  function getAllData() {
+    const data = {
+      _meta: {
+        version: '1.0',
+        source: 'dan',
+        exportedAt: new Date().toISOString(),
+        docVersion: 'Dan Discovery v1.0'
+      },
+      fields: {}
+    };
+    document.querySelectorAll('textarea[data-field]').forEach(ta => {
+      if (ta.value.trim()) {
+        data.fields[ta.dataset.field] = ta.value.trim();
+      }
+    });
+    return data;
+  }
+
+  function loadData(data) {
+    if (!data || !data.fields) return;
+    Object.entries(data.fields).forEach(([key, val]) => {
+      const ta = document.querySelector(`textarea[data-field="${key}"]`);
+      if (ta) ta.value = val;
+    });
+  }
+
+  function saveToStorage() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(getAllData()));
+      const status = document.getElementById('saveStatus');
+      status.textContent = 'Saved ' + new Date().toLocaleTimeString();
+      setTimeout(() => { status.textContent = 'All changes saved automatically'; }, 2000);
+    } catch(e) {}
+  }
+
+  function loadFromStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) loadData(JSON.parse(raw));
+    } catch(e) {}
+  }
+
+  // === Progress ===
+  function updateProgress() {
+    let filled = 0;
+    document.querySelectorAll('textarea[data-field]').forEach(ta => {
+      if (ta.value.trim()) filled++;
+    });
+    const pct = Math.round((filled / TOTAL_FIELDS) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = filled + ' of ' + TOTAL_FIELDS + ' fields completed';
+  }
+
+  // === Badges ===
+  function updateBadges() {
+    document.querySelectorAll('.section').forEach(section => {
+      const header = section.querySelector('.section-header');
+      header.querySelectorAll('.section-badge').forEach(b => b.remove());
+
+      let hasContent = false;
+      section.querySelectorAll('textarea[data-field]').forEach(ta => {
+        if (ta.value.trim()) hasContent = true;
+      });
+
+      if (hasContent) {
+        const badge = document.createElement('span');
+        badge.className = 'section-badge';
+        badge.textContent = 'Completed';
+        header.querySelector('.chevron').before(badge);
+      }
+    });
+  }
+
+  // === Sections ===
+  function toggleSection(header) {
+    header.closest('.section').classList.toggle('open');
+  }
+
+  // === Send ===
+  async function sendToJames() {
+    const data = getAllData();
+    const fieldCount = Object.keys(data.fields).length;
+
+    if (fieldCount === 0) {
+      showToast('Fill in at least one field before sending!');
+      return;
+    }
+
+    const jsonStr = JSON.stringify(data, null, 2);
+    const file = new File([jsonStr], 'dan-responses-' + new Date().toISOString().slice(0,10) + '.json', {
+      type: 'application/json'
+    });
+
+    // Try native share with file first (works on mobile for WhatsApp/email)
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          title: 'Legora Discovery - Dan\'s Responses',
+          text: 'Here are my responses to the Legora discovery document.',
+          files: [file]
+        });
+        showToast('Sent! Thanks Dan.', 3000);
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return; // user cancelled
+      }
+    }
+
+    // Try native share without file (text only)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Legora Discovery - Dan\'s Responses',
+          text: 'Here are my responses to the Legora discovery document.\n\n' + jsonStr
+        });
+        showToast('Sent! Thanks Dan.', 3000);
+        return;
+      } catch (e) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+
+    // Fallback: download file + show instructions
+    downloadJSON();
+    document.getElementById('sendFallback').style.display = 'block';
+    showToast('File downloaded -- send it to James via email or WhatsApp', 4000);
+  }
+
+  function downloadJSON() {
+    const data = getAllData();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'dan-responses-' + new Date().toISOString().slice(0,10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // === Init ===
+  document.addEventListener('DOMContentLoaded', () => {
+    loadFromStorage();
+    updateProgress();
+    updateBadges();
+
+    document.addEventListener('input', (e) => {
+      if (e.target.matches('textarea[data-field]')) {
+        saveToStorage();
+        updateProgress();
+        updateBadges();
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
